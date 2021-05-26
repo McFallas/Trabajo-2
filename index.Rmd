@@ -1,0 +1,120 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Gráficos Hidrológicos
+
+Se va a comenzar, cargando el archivo FDC.csv
+
+```{r}
+inp <- read.csv("FDC.csv")
+
+
+head(inp)
+
+dim(inp)
+
+inp[!complete.cases(inp),]
+```
+
+### Gráfico 1
+
+Se va a gráficar el volumen de agua por tiempo.
+
+```{r}
+plot(inp[,2],type= "l", col = "#9900FF",
+
+main = "Volumen de agua por tiempo",
+xlab = ("Rio Estrella"),
+ylab = ("Rio Banano")
+)
+
+lines(inp[ ,3], col = "#33CCCC")
+```
+
+### Gráfico 2
+
+Se va a realizar un gráfico del histograma del Rio Estrella
+
+```{r}
+summary(inp[,2:3])
+hist(inp[,2],
+     main = "Histograma Rio Estrella",
+     xlab = ("Rango absoluto"),
+     ylab = ("Frecuencia"),
+     col = "#00CC66"
+     )
+```
+
+### Gráfico 3
+
+Se va a realizar un gráfico del histograma del Rio Banano
+
+```{r}
+hist(inp[,3],
+     main = "Histograma Rio Banano",
+     xlab = ("Rango Absoluto"),
+     ylab = ("Frecuencia"),
+     col = "#CC0099"
+     )
+```
+
+### Gráfico 4
+
+```{r}
+names(inp) <- c("fecha", "Estrella","Banano")
+attach(inp)
+plot(Estrella)
+```
+
+### Gráfico 5
+
+```{r}
+Tempdate <- strptime(inp[,1], format= "%d/%m/%Y")
+
+
+MAQ_Estrella <- tapply(Estrella, format(Tempdate, format = "%Y"), FUN = sum)   
+MAQ_Banano <- tapply(Banano, format(Tempdate, format = "%Y"), FUN = sum)   
+
+write.csv(rbind(MAQ_Estrella, MAQ_Banano),file= "MAQ.csv")
+
+plot(MAQ_Banano,ylim = c(100,3000), 
+     main = "VALORES ANUALES DE LOS CAUDALES",
+     xlab = ("MESES"),
+     ylab = ("AÑOS"),
+     col = "#FF9900"
+)
+lines(MAQ_Estrella, col = 2)
+
+MMQ_Estrella <- tapply(Estrella, format(Tempdate, format = "%m"), FUN = sum)   
+MMQ_Banano <- tapply(Banano, format(Tempdate, format = "%m"), FUN = sum) 
+```
+
+### Gráfico 6
+
+Gráficación de coeficientes de caudales
+
+```{r}
+corinp <- cor(inp[,2:3], method= "spearman")
+
+plot(inp[,2], inp[,3],
+     main = "COEFICIENTE DE CAUDALES",
+     xlab = ("Estrella"),
+     ylab = ("Banano"),
+     col = "#003333"
+)
+
+inp.lm <- lm(inp[,2] ~ inp[,3], data=inp)
+
+summary(inp.lm)
+
+plot(inp.lm)
+```
+
+
+
